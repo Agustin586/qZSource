@@ -1,0 +1,20 @@
+PACKAGE plecscombocoder plexim COMPONENTS="plecsrtw plecscoder" \
+	OPTIONS=SUITE SIGN="00D7 CF6A 758D 517E D8D6 8750 0D4C 7200 \
+	5F17 C41C B911 CDC2 27B7 9F12 13CF"
+PACKAGE plecscombo plexim COMPONENTS="plecsedit plecssolve" \
+	OPTIONS=SUITE SIGN="00C8 7A1F E1F6 4100 40EE AE92 29AC 6600 \
+	A0C8 8CA5 004D 8460 4438 F2F1 EB8E"
+FEATURE plecscombocoder plexim 4.9 19-sep-2026 uncounted \
+	HOSTID="USERHOST=aguat+ec9161994af7 \
+	USERHOST=aguat+40c2ba95551a" ISSUED=19-sep-2025 \
+	NOTICE="{`name` : `Andr\u00e9s V\u00e1zquez` , `organization` \
+	: `Universidad Nacional de Rosario` , `country` : `AR`}" \
+	SN=STUDENT SIGN="002F 1FD2 18DD 57D0 11B4 44EA 6ACC 4B00 1A1E \
+	247D 09C7 8CB1 DE5B 85C1 1431"
+FEATURE plecscombo plexim 4.9 19-sep-2026 uncounted \
+	HOSTID="USERHOST=aguat+ec9161994af7 \
+	USERHOST=aguat+40c2ba95551a" ISSUED=19-sep-2025 \
+	NOTICE="{`name` : `Andr\u00e9s V\u00e1zquez` , `organization` \
+	: `Universidad Nacional de Rosario` , `country` : `AR`}" \
+	SN=STUDENT SIGN="000F BD97 BA8D A63A 8586 E3B4 3BAC BF00 7C07 \
+	1136 E27D 576B 3B73 9046 B05E"
