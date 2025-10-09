@@ -1,16 +1,47 @@
-# Programa - Firmware qZSI
+# 💻 Programa - Firmware qZSI
 
 Este directorio contiene el firmware completo para el control del Inversor Quasi Z-Source implementado en el DSP TMS320F28335 de Texas Instruments.
 
-## Contenido
+## 📦 Contenido
 
 - **qZSI-Firmware/**: Proyecto completo de Code Composer Studio con todo el firmware del inversor
 
-## Arquitectura del Firmware
+## 🏗️ Arquitectura del Firmware
 
-El firmware está organizado en módulos funcionales:
+El firmware está organizado en módulos funcionales para facilitar el mantenimiento y la escalabilidad:
 
-### Módulos Principales
+### 🧠 Módulos Principales
+
+#### `main.c` - Corazón del Sistema
+- **Función principal**: Inicialización y loop principal del sistema
+- **Configuración inicial**: Setup de todos los periféricos del DSP
+- **Interrupciones**: Manejo de interrupciones de timer y ADC
+- **Estado del sistema**: Control del estado global de la aplicación
+
+#### `qZSI.c/h` - Motor de Control del Inversor
+- **Algoritmos de control**: Implementación de los controladores PID
+- **Cálculo de PWM**: Generación de ciclos de trabajo para MOSFETs
+- **Protecciones**: Sistema de protecciones por software
+- **Conversiones ADC**: Procesamiento de señales analógicas a valores físicos
+- **Funciones clave**:
+  - `qzsi_dcBusController()`: Control del bus DC con algoritmo no lineal
+  - `qzsi_outputVoltageController()`: Control de tensión de salida con PID cascadeado
+  - `qzsi_updatePWM()`: Actualización de registros PWM del DSP
+  - `qzsi_getOpenLoop_d0()`: Cálculo de ciclo de trabajo en lazo abierto
+
+#### `mefPrincipal.c/h` - Máquina de Estados Principal
+- **Estados del sistema**: INICIO, RUN, FALLA, RESET_FALLA
+- **Gestión de fallas**: Detección y manejo de condiciones de error
+- **Secuencia de arranque**: Coordinación del arranque del sistema
+- **Interfaz de usuario**: Manejo de botones y LEDs indicadores
+
+#### `mefArranque.c/h` - Secuencia de Arranque Inteligente
+- **Arranque progresivo**: Encendido suave del inversor
+- **Carga de capacitores**: Precarga controlada de la red Z-source
+- **Verificaciones**: Chequeos de seguridad antes del arranque
+- **Transiciones**: Cambio gradual entre modos de operación
+
+### 🔌 Drivers y Periféricos
 
 - **`main.c`**: Función principal y configuración inicial del sistema
 - **`qZSI.c/h`**: Algoritmos de control del inversor quasi Z-source
@@ -20,51 +51,78 @@ El firmware está organizado en módulos funcionales:
 ### Drivers y Periféricos
 
 - **`Drivers/`**: Drivers para periféricos externos
-  - `digitalPot.c/h`: Control de potenciómetros digitales
-  - `key.c/h`: Manejo de botones y entradas digitales
-  - `LedIndicator.c/h`: Control de indicadores LED
-  - `MCP4461.c/h`: Driver específico para potenciómetro digital MCP4461
+  - `digitalPot.c/h`: Control de potenciómetros digitales MCP4461 vía I2C
+  - `key.c/h`: Debounce y manejo de botones con detección de flancos
+  - `LedIndicator.c/h`: Control de LEDs indicadores con códigos de error
+  - `MCP4461.c/h`: Driver específico para potenciómetro digital de 4 canales
 
-### Inicialización de Hardware
+### ⚙️ Inicialización de Hardware
 
-- **`Inits/`**: Módulos de inicialización de periféricos del DSP
-  - `Adc.c/h`: Configuración del convertidor analógico-digital
-  - `EPwm.c/h`: Configuración de PWM para control de MOSFETs
-  - `Gpio.c/h`: Configuración de pines de entrada/salida
-  - `I2C.c/h`: Comunicación I2C para potenciómetros digitales
-  - `SysCtrl.c/h`: Control del sistema y relojes
+- **`Inits/`**: Módulos de inicialización críticos del DSP
+  - `Adc.c/h`: ADC de 12 bits, 16 canales, conversión sincronizada con PWM
+  - `EPwm.c/h`: 6 módulos PWM para control de MOSFETs y sincronización
+  - `Gpio.c/h`: 88 pines GPIO para entradas/salidas digitales
+  - `I2C.c/h`: Comunicación I2C a 400 kHz para potenciómetros
+  - `SysCtrl.c/h`: PLL, relojes del sistema, configuración a 150MHz
+  - `PieCtrl.c/h`: Controlador de interrupciones vectorizadas
+  - `Watchdog.c/h`: Perro guardián para detección de bloqueos
 
-### Utilidades
+### 🛠️ Utilidades y Algoritmos
 
-- **`Utils/`**: Funciones auxiliares
-  - `ringBuffer.c/h`: Implementación de buffers circulares para filtros digitales
+- **`Utils/`**: Funciones auxiliares matemáticas
+  - `ringBuffer.c/h`: Buffers circulares optimizados para filtros digitales IIR/FIR
 
-## Características del Control
+## 🎯 Características Avanzadas del Control
 
-### Algoritmos Implementados
+### 🔄 Algoritmos de Control Implementados
 
-1. **Control de Tensión DC Bus**: Regulación del voltaje del bus DC
-2. **Control de Tensión de Salida**: Regulación de la tensión AC de salida
-3. **Generación PWM**: Señales de control para MOSFETs
-4. **Protecciones**: Sistema de protecciones por hardware y software
+1. **🔋 Control de Tensión DC Bus**: 
+   - Algoritmo no lineal basado en modelo matemático
+   - Controlador con ganancias variables según punto de operación
+   - Compensación automática de variaciones de carga
+   
+2. **⚡ Control de Tensión de Salida**: 
+   - PID cascadeado: tensión externa, corriente interna
+   - Filtros digitales pasa-bajos para reducir ruido
+   - Generación de referencia senoidal con tabla lookup
+   
+3. **🎛️ Generación PWM Avanzada**: 
+   - 6 señales PWM sincronizadas
+   - Tiempos muertos programables
+   - Protección por hardware integrada
+   
+4. **🛡️ Sistema de Protecciones Multinivel**: 
+   - Protecciones por hardware (instantáneas)
+   - Protecciones por software (configurables)
+   - Recuperación automática después de fallas
 
-### Configuración
+### ⚙️ Parámetros de Configuración Críticos
 
-El archivo `inverterConfig.h` permite configurar:
+El archivo `inverterConfig.h` permite configurar múltiples aspectos:
 
-- Modo de salida: senoidal o continua
-- Habilitación de protecciones
-- Modo de control: lazo abierto/cerrado
-- Referencias de tensión
-- Parámetros del sistema
+#### 🎚️ Modos de Operación
+- `SALIDA_SENOIDAL`: Habilita salida senoidal vs. continua
+- `OUTPUT_VOLTAGE_CLOSED_LOOP`: Control en lazo cerrado de tensión
+- `BUS_VOLTAGE_CLOSED_LOOP`: Control en lazo cerrado del bus DC
 
-### Librerías Utilizadas
+#### 🛡️ Sistemas de Protección
+- `HARDWARE_PROTECTIONS`: Protecciones por hardware del DSP
+- `SOFTWARE_PROTECTIONS`: Protecciones por software configurables
 
-- **IQmath**: Biblioteca de matemática de punto fijo de TI
-- **DSP2833x**: Drivers y definiciones para el DSP F28335
-- **Headers TI**: Archivos de cabecera estándar de Texas Instruments
+#### 📊 Referencias del Sistema
+- `OPEN_LOOP_VIN`: Tensión de entrada nominal (300V)
+- `DC_BUS_VOLTAGE_REFERENCE`: Tensión del bus DC objetivo (380V)
+- `MAX_OUTPUT_VOLTAGE_REFERENCE`: Tensión de salida máxima (300V pico)
 
-## Compilación
+### 📚 Librerías Especializadas
+
+- **🧮 IQmath**: Biblioteca de matemática de punto fijo de TI (Q15, Q24)
+- **🎯 DSP2833x**: Drivers optimizados y definiciones para el DSP F28335
+- **📋 Headers TI**: Archivos de cabecera estándar de Texas Instruments
+
+## 🔧 Detalles Técnicos de Implementación
+
+### ⏱️ Temporización y Sincronización
 
 El proyecto está configurado para **Code Composer Studio** y requiere:
 
@@ -72,12 +130,33 @@ El proyecto está configurado para **Code Composer Studio** y requiere:
 2. Compilador C2000 de Texas Instruments
 3. Biblioteca IQmath instalada
 
-## Frecuencia de Operación
+- **⏰ Frecuencia PWM**: 10 kHz (período de 100 µs)
+- **📊 Frecuencia de muestreo ADC**: 20 kHz (2 muestras por período PWM)
+- **🌊 Frecuencia de salida**: 50 Hz (senoidal de red)
+- **🔄 Loop de control**: Ejecutado cada 50 µs (sincronizado con PWM)
 
-- **Frecuencia PWM**: 10 kHz
-- **Frecuencia de muestreo ADC**: 20 kHz (2 muestras por período PWM)
-- **Frecuencia de salida**: 50 Hz
+### 🧠 Optimizaciones de Rendimiento
 
-## Memoria Utilizada
+#### 💾 Gestión de Memoria
+- **Código crítico en RAM**: Rutinas de control para máxima velocidad
+- **Datos en SARAM**: Variables de control en memoria rápida
+- **Stack optimizado**: Configurado para manejar interrupciones anidadas
 
-El firmware está optimizado para ejecutarse desde RAM para máximo rendimiento en las rutinas de control críticas.
+#### ⚡ Optimizaciones de Código
+- **IQmath**: Aritmética de punto fijo para cálculos rápidos
+- **Inline functions**: Funciones críticas declaradas como inline
+- **Loop unrolling**: Desenrollado de bucles en filtros digitales
+
+### 🔍 Sistema de Debugging
+
+#### 📊 Variables de Monitoreo
+- Variables globales visibles en debugger
+- Buffers de datos para análisis en tiempo real
+- Contadores de rendimiento y estadísticas
+
+#### 🚨 Códigos de Error
+- Sistema de LEDs con códigos específicos
+- Registro de fallas con timestamp
+- Recuperación automática o manual según tipo de error
+
+## 🛠️ Compilación y Desarrollo
