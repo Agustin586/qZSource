@@ -6,7 +6,8 @@
 ## 🖼️ Vista del Proyecto
 
 ![qZSource Inverter](https://github.com/Agustin586/qZSource/blob/main/img/circuitoQZSource.png)
-*Imagen del inversor Quasi Z-Source implementado*
+
+> *Imagen del inversor Quasi Z-Source implementado*
 
 > **Nota**: Agrega la imagen del proyecto en la carpeta `images/` con el nombre `qzsi-main.png`
 
