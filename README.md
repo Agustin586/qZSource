@@ -60,4 +60,5 @@ Este proyecto está licenciado bajo la Licencia BSD de 3 Cláusulas. Ver los arc
 ## 📅 Año
 
 > 2025 - Proyecto Final de Ingeniería Electrónica - Lazo de Control
+> 
 > 2024 - Proyecto Final de Ingeniería Electrónica - Proyecto Base
