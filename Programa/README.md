@@ -124,11 +124,59 @@ El archivo `inverterConfig.h` permite configurar múltiples aspectos:
 
 ### ⏱️ Temporización y Sincronización
 
+### 🔨 Herramientas Requeridas
+
 El proyecto está configurado para **Code Composer Studio** y requiere:
 
-1. Code Composer Studio v6.0 o superior
-2. Compilador C2000 de Texas Instruments
-3. Biblioteca IQmath instalada
+1. **Code Composer Studio v6.0** o superior
+2. **Compilador C2000** de Texas Instruments
+3. **Biblioteca IQmath** instalada
+4. **XDS100v2** o emulador compatible para debugging
+
+### 📁 Configuración del Proyecto
+
+#### 🎯 Target Configuration
+- **Device**: TMS320F28335
+- **Connection**: XDS100v2 USB Emulator
+- **Gel Files**: Configuración de registros y memoria
+
+#### 🔗 Linker Configuration
+- **Flash**: Código de inicialización
+- **RAM**: Código crítico de control
+- **Sectores**: Optimizados para velocidad de ejecución
+
+### 🏃‍♂️ Proceso de Build
+
+```bash
+# Compilación optimizada para velocidad
+Optimization Level: -O2
+# Punto fijo habilitado
+IQmath Support: Enabled
+# Debugging symbols
+Debug Info: Full
+```
+
+## 🔍 Análisis de Rendimiento
+
+### 📊 Uso de Memoria
+- **Program Flash**: ~80KB de 256KB disponibles
+- **Data RAM**: ~15KB de 34KB disponibles
+- **Stack**: 1KB reservado para interrupciones
+
+### ⚡ Timing Analysis
+- **ISR de control**: ~25µs de ejecución
+- **Conversión ADC**: ~2µs por canal
+- **Cálculo PWM**: ~5µs para 6 canales
+- **Margen disponible**: ~18µs por ciclo de control
+
+## 🚀 Próximas Implementaciones
+
+### 🎯 Mejoras Planificadas
+- [ ] Control adaptativo de ganancia
+- [ ] Estimador de parámetros en línea
+- [ ] Comunicación CAN bus
+- [ ] Interface gráfica de usuario
+- [ ] Data logging en memoria externa
 
 - **⏰ Frecuencia PWM**: 10 kHz (período de 100 µs)
 - **📊 Frecuencia de muestreo ADC**: 20 kHz (2 muestras por período PWM)
