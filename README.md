@@ -9,8 +9,6 @@
 
 > *Imagen del inversor Quasi Z-Source implementado*
 
-> **Nota**: Agrega la imagen del proyecto en la carpeta `images/` con el nombre `qzsi-main.png`
-
 ## 📝 Descripción
 
 Proyecto Final de Ingeniería Electrónica
