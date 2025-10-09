@@ -1,0 +1,7 @@
+Record=TopLevelDocument|FileName=Analogicas_Corriente.SchDoc|SheetNumber=5
+Record=NoMainPathDocument|SourceDocument=Analogicas_Corriente.SchDoc|FileName=Analogicas_Tension.SchDoc|SheetNumber=4
+Record=NoMainPathDocument|SourceDocument=Analogicas_Corriente.SchDoc|FileName=CAN.SchDoc|SheetNumber=3
+Record=NoMainPathDocument|SourceDocument=Analogicas_Corriente.SchDoc|FileName=Control.SchDoc|SheetNumber=1
+Record=NoMainPathDocument|SourceDocument=Analogicas_Corriente.SchDoc|FileName=DriverSignals.SchDoc|SheetNumber=6
+Record=NoMainPathDocument|SourceDocument=Analogicas_Corriente.SchDoc|FileName=PSU.SchDoc|SheetNumber=7
+Record=NoMainPathDocument|SourceDocument=Analogicas_Corriente.SchDoc|FileName=Safety_Protections.SchDoc|SheetNumber=2

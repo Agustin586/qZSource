@@ -1,0 +1,12 @@
+Record=DiagramHierarchy|SourceDocument=MultiBoardSchematic1.MbsDoc|Kind=Multi-board Schematic Module|Designator=CB|Source=..\qZSI\ControlBoard\ControlBoard.PrjPcb
+Record=SubProject|SourceDocument=MultiBoardSchematic1.MbsDoc|ProjectPath=..\qZSI\ControlBoard\ControlBoard.PrjPcb
+Record=DiagramHierarchy|SourceDocument=MultiBoardSchematic1.MbsDoc|Kind=Multi-board Schematic Module|Designator=AC|Source=..\qZSI\Design_AC_Output\AC_Output.PrjPcb
+Record=SubProject|SourceDocument=MultiBoardSchematic1.MbsDoc|ProjectPath=..\qZSI\Design_AC_Output\AC_Output.PrjPcb
+Record=DiagramHierarchy|SourceDocument=MultiBoardSchematic1.MbsDoc|Kind=Multi-board Schematic Module|Designator=DC-AC|Source=..\qZSI\Design_DC_AC_Converter\DC_AC_Converter.PrjPcb
+Record=SubProject|SourceDocument=MultiBoardSchematic1.MbsDoc|ProjectPath=..\qZSI\Design_DC_AC_Converter\DC_AC_Converter.PrjPcb
+Record=DiagramHierarchy|SourceDocument=MultiBoardSchematic1.MbsDoc|Kind=Multi-board Schematic Module|Designator=DC|Source=..\qZSI\Design_DC_Input\DC_Input(1).PrjPcb
+Record=SubProject|SourceDocument=MultiBoardSchematic1.MbsDoc|ProjectPath=..\qZSI\Design_DC_Input\DC_Input(1).PrjPcb
+Record=DiagramHierarchy|SourceDocument=MultiBoardSchematic1.MbsDoc|Kind=Multi-board Schematic Module|Designator=DRV|Source=..\qZSI\Design_Drivers\Drivers.PrjPcb
+Record=SubProject|SourceDocument=MultiBoardSchematic1.MbsDoc|ProjectPath=..\qZSI\Design_Drivers\Drivers.PrjPcb
+Record=DiagramHierarchy|SourceDocument=MultiBoardSchematic1.MbsDoc|Kind=Multi-board Schematic Module|Designator=DC_ADDON|Source=..\qZSI\Driver_MOSFET_DC_Input\Driver_MOSFET_DC_Input.PrjPcb
+Record=SubProject|SourceDocument=MultiBoardSchematic1.MbsDoc|ProjectPath=..\qZSI\Driver_MOSFET_DC_Input\Driver_MOSFET_DC_Input.PrjPcb
