@@ -5,7 +5,7 @@
 
 ## Descripción
 
-Proyecto Final de Ingeniería Electrónica - TM desarrollado por Guido Cicconi, Gustavo García y Juan Tinazzo en 2024.
+Proyecto Final de Ingeniería Electrónica
 
 Este proyecto implementa un **Inversor Quasi Z-Source (qZSI)** completo, incluyendo el diseño de hardware, firmware de control y simulaciones. El inversor qZSI es una topología avanzada que combina las funciones de elevación de tensión y inversión en una sola etapa, ofreciendo ventajas como inmunidad a cortocircuitos y mayor eficiencia.
 
@@ -33,10 +33,15 @@ qZSource/
 
 - **Hardware**: TMS320F28335 DSP, MOSFETs, Drivers de compuerta
 - **Software**: Code Composer Studio, IQmath Library
-- **Simulación**: PLECS Blockset
+- **Simulación**: PLECS Blockset, Matlab Simulink
 - **Diseño PCB**: Altium Designer (presumiblemente)
 
-## Autores
+## Autores del proyecto 2025
+- **Fasolato, Alejandro**
+- **Soso, Alvaro**
+- **Zuliani, Agustin**
+
+## Autores del proyecto 2024
 
 - **Guido Cicconi**
 - **Gustavo García** 
@@ -48,4 +53,5 @@ Este proyecto está licenciado bajo la Licencia BSD de 3 Cláusulas. Ver los arc
 
 ## Año
 
-2024 - Proyecto Final de Ingeniería Electrónica
+2025 - Proyecto Final de Ingeniería Electrónica - Lazo de Control
+2024 - Proyecto Final de Ingeniería Electrónica - Proyecto Base
