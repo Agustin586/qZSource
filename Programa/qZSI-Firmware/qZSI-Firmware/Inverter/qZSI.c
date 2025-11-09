@@ -49,12 +49,12 @@
 #define DC_BUS_L _IQ(0.0032)    // Inductancia L de la red Z
 #define DC_BUS_C _IQ(0.0005)    // Capacidad C de la red Z
 
-#define PID_V_LENGTH 5          // Longitud del controlador PID de tensión
+#define PID_V_LENGTH 5          // Longitud del controlador PID de tensiï¿½n
 #define PID_I_LENGTH 3          // Longitud del controlador PID de corriente
 #define LPF_LENGTH 3            // Longitud del filtro pasa bajos
 
 /**********************************************************************
-         PARAMETROS DE LA INTERFAZ ANALÓGICA DE MEDICIONES
+         PARAMETROS DE LA INTERFAZ ANALï¿½GICA DE MEDICIONES
 **********************************************************************/
 #define IBRDG_OFFSET_VALUE _IQ(0.691)
 #define IBRDG_INVERSE_GAIN_VALUE _IQ(23.866634845)
@@ -83,18 +83,18 @@
 /**********************************************************************
                       VARIABLES DECLARATION
 **********************************************************************/
-static _iq currentVo;                                         // Set-point actual de la tensión de salida
-static _iq desiredVo;                                         // Set-point deseado de la tensión de salida
-static _iq currentVBUS;                                       // Set-point actual de la tensión del bus DC
-static _iq desiredVBUS;                                       // Set-point deseado de la tensión del bus DC
+static _iq currentVo;                                         // Set-point actual de la tensiï¿½n de salida
+static _iq desiredVo;                                         // Set-point deseado de la tensiï¿½n de salida
+static _iq currentVBUS;                                       // Set-point actual de la tensiï¿½n del bus DC
+static _iq desiredVBUS;                                       // Set-point deseado de la tensiï¿½n del bus DC
 
 static char Vo_inicial;
 static char sin_salida;
 
-static _iq DC_BUS_WN2;                                        // Parámetro Wn^2 del controlador de VBUS
-static _iq DC_BUS_XI_WN;                                     // Parámetro psi*Wn del controlador de VBUS
-static _iq DC_BUS_C_2;                                        // Parámetro C/2 del controlador de Vbus
-static _iq PERCENTAGE_SECURITY_TIME;                          // Porcentaje del período PWM dedicado al tiempo de seguridad
+static _iq DC_BUS_WN2;                                        // Parï¿½metro Wn^2 del controlador de VBUS
+static _iq DC_BUS_XI_WN;                                      // Parï¿½metro psi*Wn del controlador de VBUS
+static _iq DC_BUS_C_2;                                        // Parï¿½metro C/2 del controlador de Vbus
+static _iq PERCENTAGE_SECURITY_TIME;                          // Porcentaje del perï¿½odo PWM dedicado al tiempo de seguridad
 
 _iq pidCurrentInputCoeffs[PID_I_LENGTH];                      // PID of current loop - input coefficients
 _iq pidCurrentOutputCoeffs[PID_I_LENGTH-1];                   // PID of current loop - output coefficients
@@ -162,13 +162,13 @@ static inline void _IQ_diff_eq(_iq lastData, RING_BUF *in, RING_BUF *out, _iq *i
 
     ringBuffer_putData(in, lastData);
 
-    index = in->pos;                                            // El índice inicia en el último valor de entrada
+    index = in->pos;                                            // El ï¿½ndice inicia en el ï¿½ltimo valor de entrada
     for(i=0; i<inputLen; i++){
         y += _IQmpy(in->buffer[index--], inputCoeffs[i]);       // Se multiplica el valor de entrada (t-i) por el coeficiente i
         if(index<0) index = in->len - 1;                        // Wrap del index
     }
 
-    index = out->pos;                                           // El índice inicia en el último valor de salida
+    index = out->pos;                                           // El ï¿½ndice inicia en el ï¿½ltimo valor de salida
     for(i=0; i<outputLen; i++){
         y += _IQmpy(out->buffer[index--], outputCoeffs[i]);     // Se multiplica el valor de salida (t-1-i) por el coeficiente i
         if(index<0) index = out->len - 1;
@@ -193,12 +193,16 @@ static inline void _IQ_LPF(_iq lastData, RING_BUF* in, RING_BUF* out){
                    EXTERNAL FUNCTIONS DEFINITIONS
 **********************************************************************/
 
-/**********************************************************************
-* Function: qzsi_init()
-* Description: Initialization for qZSI.
-*
-* Usage: qzsi_init();
-**********************************************************************/
+/**
+ * @brief qzsi_init()
+ * Descipcion: inicializacion del qZSI, se enacrga de configurar cada uno de los
+ * parametros propios del convertidor.
+ * 
+ * Configuraciones: dc bus controller, pid current controller,
+ * pid voltage controller, lpf parameters, ring buffers.
+ * 
+ * Usage: qzsi_init();
+ */
 extern void qzsi_init(){
     qzsi_resetReferences();
     index_seno = 0;
@@ -210,19 +214,19 @@ extern void qzsi_init(){
     PERCENTAGE_SECURITY_TIME = _IQmpy(Q_SECURITY_TIME, ADC_SAMPLE_FRECUENCY);
 
     // PID current controller parameters init
-    pidCurrentInputCoeffs[0] = _IQ(0.08484166);        // Coeficiente para medición en T0
-    pidCurrentInputCoeffs[1] = _IQ(-0.14512306);       // Coeficiente para medición en T-1
-    pidCurrentInputCoeffs[2] = _IQ(0.06139566);        // Coeficiente para medición en T-2
+    pidCurrentInputCoeffs[0] = _IQ(0.08484166);        // Coeficiente para mediciï¿½n en T0
+    pidCurrentInputCoeffs[1] = _IQ(-0.14512306);       // Coeficiente para mediciï¿½n en T-1
+    pidCurrentInputCoeffs[2] = _IQ(0.06139566);        // Coeficiente para mediciï¿½n en T-2
 
     pidCurrentOutputCoeffs[0] = _IQ(1.22213691);       // Coeficiente para valor calculado en T-1
     pidCurrentOutputCoeffs[1] = _IQ(-0.22213691);      // Coeficiente para valor calculado en T-2
 
     // PID voltage controller parameters init
-    pidVoltageInputCoeffs[0] = _IQ(0.06086318);        // Coeficiente para medición en T0
-    pidVoltageInputCoeffs[1] = _IQ(-0.23473677);       // Coeficiente para medición en T-1
-    pidVoltageInputCoeffs[2] = _IQ(0.33921768);        // Coeficiente para medición en T-2
-    pidVoltageInputCoeffs[3] = _IQ(-0.21767410);       // Coeficiente para medición en T-3
-    pidVoltageInputCoeffs[4] = _IQ(0.05233003);        // Coeficiente para medición en T-4
+    pidVoltageInputCoeffs[0] = _IQ(0.06086318);        // Coeficiente para mediciï¿½n en T0
+    pidVoltageInputCoeffs[1] = _IQ(-0.23473677);       // Coeficiente para mediciï¿½n en T-1
+    pidVoltageInputCoeffs[2] = _IQ(0.33921768);        // Coeficiente para mediciï¿½n en T-2
+    pidVoltageInputCoeffs[3] = _IQ(-0.21767410);       // Coeficiente para mediciï¿½n en T-3
+    pidVoltageInputCoeffs[4] = _IQ(0.05233003);        // Coeficiente para mediciï¿½n en T-4
 
     pidVoltageOutputCoeffs[0] = _IQ(3.97285449);       // Coeficiente para valor calculado en T-1
     pidVoltageOutputCoeffs[1] = _IQ(-5.91957015);      // Coeficiente para valor calculado en T-2
@@ -230,9 +234,9 @@ extern void qzsi_init(){
     pidVoltageOutputCoeffs[3] = _IQ(-0.97383579);      // Coeficiente para valor calculado en T-4
 
     // LPF parameters init
-    lpfInputCoeffs[0] = _IQ(0.22907918);               // Coeficiente para medición en T0
-    lpfInputCoeffs[1] = _IQ(0.45815837);               // Coeficiente para medición en T-1
-    lpfInputCoeffs[2] = _IQ(0.22907918);               // Coeficiente para medición en T-2
+    lpfInputCoeffs[0] = _IQ(0.22907918);               // Coeficiente para mediciï¿½n en T0
+    lpfInputCoeffs[1] = _IQ(0.45815837);               // Coeficiente para mediciï¿½n en T-1
+    lpfInputCoeffs[2] = _IQ(0.22907918);               // Coeficiente para mediciï¿½n en T-2
 
     lpfOutputCoeffs[0] = _IQ(0.28458000);              // Coeficiente para valor calculado en T-1
     lpfOutputCoeffs[1] = _IQ(-0.20089676);             // Coeficiente para valor calculado en T-2
@@ -264,6 +268,22 @@ extern void qzsi_init(){
 *
 * Usage: qzsi_calculateVariables(&activeVars, &stVars, AdcBuffer);
 **********************************************************************/
+/**
+ * @brief qzsi_caculateVariables
+ * Descripcion: calcula los valores leidos por el adc de los distintos 
+ * parametros requeridos.
+ * 
+ * Mediciones:
+ *          > IBDRG: corriente por el puente
+ *          > VDC:   voltage de dc
+ *          > VC1:   voltage del capacitor 1
+ *          > Vac:   voltage de tension de salida
+ *          > Iac:   corriente de salida
+ *          > IL1:   corriente por la bobina 1
+ *          > Iin:   corriente de entrada de la fuente de continua
+ *          > Vin:   tension de entrada de la fuente de continua
+ *          > IL:    corriente de L
+ */
 extern void qzsi_calculateVariables(activeVars_t *av, stVars_t *stv, volatile Uint16 *adc){
     av->IBRDG = _IQmpy(Adc_GetVoltage(adc[ADC_IBRDG]) - IBRDG_OFFSET_VALUE, IBRDG_INVERSE_GAIN_VALUE);
     av->VDC   = _IQmpy(Adc_GetVoltage(adc[ADC_VDC])   - VDC_OFFSET_VALUE,   VDC_INVERSE_GAIN_VALUE);
@@ -324,8 +344,8 @@ extern _iq qzsi_outputVoltageController(_iq Vo, _iq IL){
     static _iq d;
     _iq Vref = _IQmpy(currentVo, seno[index_seno]);
 
-    if(d < 0) IL=-IL;               // Como IBRDG = |IL| en el vector activo, se pasa como IL la medición de IBRDG
-                                    // y luego se ajusta su signo según el signo del ciclo de trabajo
+    if(d < 0) IL=-IL;               // Como IBRDG = |IL| en el vector activo, se pasa como IL la mediciï¿½n de IBRDG
+                                    // y luego se ajusta su signo segï¿½n el signo del ciclo de trabajo
 
     _IQ_LPF(Vo, &vLpfIn, &vLpfOut);
     _IQ_LPF(IL, &iLpfIn, &iLpfOut);
@@ -374,7 +394,7 @@ extern void qzsi_updatePWM(_iq d0, _iq D){
         EPwm5Regs.CMPA.half.CMPA = (int)(_IQmpy(_IQ(1.0)-D+PERCENTAGE_SECURITY_TIME, PWM_PERIOD));  // EPWM5 maneja QDZ, que se enciende 1uS despues del vector nulo
         EPwm5Regs.CMPB = (int)(_IQmpy(_IQ(1.0)-PERCENTAGE_SECURITY_TIME, PWM_PERIOD));              // El QDZ se apaga 1uS antes del ST
     }
-    else{                                                                                           // Si el vector activo es muy pequeño, QDZ no se enciende
+    else{                                                                                           // Si el vector activo es muy pequeï¿½o, QDZ no se enciende
         EPwm5Regs.CMPA.half.CMPA = (int)(_IQmpy(_IQ(1.1), PWM_PERIOD));                             // En este caso, QDZ no se enciende
     }
 
@@ -540,7 +560,6 @@ extern void qzsi_setVo(_iq vo){
     desiredVo = vo;
 }
 
-
 /**********************************************************************
 * Function: _iq qzsi_getVo()
 * Description: get current Vo set-point
@@ -558,7 +577,7 @@ extern _iq qzsi_getVo(){
 extern void qzsi_clearVoInicial(){
     Vo_inicial = 0;
 }
-
+ 
 /**********************************************************************
 * Function: void qzsi_HabilitarSalida()
 * Description: clears sin_salida flag

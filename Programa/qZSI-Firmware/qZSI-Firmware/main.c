@@ -1,3 +1,12 @@
+/**
+ * @file main.c
+ * @brief Punto de entrada principal para el proyecto qZSI-Firmware.
+ * @author Zuliani, Agustin
+ * 
+ * Este archivo contiene la funciÃ³n principal y las rutinas de servicio de interrupciÃ³n (ISR)
+ * para el proyecto qZSI-Firmware. Inicializa los perifÃ©ricos y maneja el bucle principal de control.
+ */
+
 /*
  * Proyecto Final de Ing. Electronica - TM
  *
@@ -37,15 +46,15 @@
 /*
  * NOTA: Este proyecto cuenta con dos linker scripts disponibles: Linker.cmd
  * y Linker_no_flash.cmd. Con el primero de ellos, el programa se carga
- * en la memoria flash del DSP, y permanece ante la falta de energía,
+ * en la memoria flash del DSP, y permanece ante la falta de energï¿½a,
  * por lo que se comienza a ejecutar en cada arranque. Con el segundo,
  * el programa se carga en un sector de la memoria RAM, por lo que carece
- * de persistencia ante la falta de energía. Se recomienda utilizar este
- * último en el desarrollo, para evitar arranques indeseados del inversor.
- * Para utilizar uno u otro, basta con excluir de la compilación al no
- * deseado, haciendo click derecho sobre el mismo y marcando la opción
+ * de persistencia ante la falta de energï¿½a. Se recomienda utilizar este
+ * ï¿½ltimo en el desarrollo, para evitar arranques indeseados del inversor.
+ * Para utilizar uno u otro, basta con excluir de la compilaciï¿½n al no
+ * deseado, haciendo click derecho sobre el mismo y marcando la opciï¿½n
  * "Exclude from Build".
- * Además, si se desea utilizar la flash, se debe descomentar la línea
+ * Ademï¿½s, si se desea utilizar la flash, se debe descomentar la lï¿½nea
  * que define la macro USING_FLASH en el archivo Board_Init.h
  *
  */
@@ -70,35 +79,40 @@
 #include "Drivers/key.h"
 #include "Drivers/LedIndicator.h"
 #include "Inverter/inverterConfig.h"
+#include "Test/DataLogger.h"
 
 /**********************************************************************
                               DEFINES
 **********************************************************************/
-#define CORE_CLOCK_FREQ 150E6
-#define SYSTICK_PERIOD 1E-3
+#define CORE_CLOCK_FREQ             150E6
+#define SYSTICK_PERIOD              1E-3
+#define DATA_LOGGER_TRIGGER_VALUE   DC_BUS_VOLTAGE_REFERENCE/3
+#define DATA_LOGGER_PRE_SCALAR      0
 
 /**********************************************************************
                       VARIABLES DECLARATION
 **********************************************************************/
 /*
- * El módulo DMA guarda automáticamente las mediciones del ADC en el
- * buffer AdcBuff. Con esta instrucción se fuerza al compilador a
- * ubicar al buffer en una sección de la RAM accesible por DMA,
+ * El mï¿½dulo DMA guarda automï¿½ticamente las mediciones del ADC en el
+ * buffer AdcBuff. Con esta instrucciï¿½n se fuerza al compilador a
+ * ubicar al buffer en una secciï¿½n de la RAM accesible por DMA,
  * llamada dmaMemBufs y definida en el linker script.
  *
  */
 #pragma DATA_SECTION(AdcBuff, "dmaMemBufs");
 volatile Uint16 AdcBuff[ADC_total], AdcBuff2[ADC_total];
+volatile dataLogger_t dLogValues = {0, 0, 0, 0};
 
 /**********************************************************************
                       FUNCTIONS DEFINITIONS
 **********************************************************************/
 
-/**********************************************************************
-* Function: main()
-*
-* Description: Main function for C28x workshop labs
-**********************************************************************/
+/**
+ * @brief FunciÃ³n principal para el proyecto qZSI-Firmware.
+ * 
+ * Inicializa la placa, los perifÃ©ricos y las variables globales. Ejecuta constantemente
+ * la mÃ¡quina de estados principal (mefPrincipal) que contiene submÃ¡quinas de estados.
+ */
 void main(void){
 
     // -- Buffers init
@@ -128,6 +142,8 @@ void main(void){
     qzsi_init();
     mefPrincipal_init();
     ledIndicator_init();
+    dataLoggerReset(DATA_LOGGER_TRIGGER_VALUE,
+                    DATA_LOGGER_PRE_SCALAR);
 
     //--- Enable global interrupts
     asm(" CLRC INTM, DBGM");                        // Enable global interrupts and realtime debug
@@ -139,12 +155,13 @@ void main(void){
 	}
 }
 
-/**********************************************************************
-* Function: TINT0_ISR()
-*
-* Description: ISR of CPU Timer 0 interrupt (SysTick)
-**********************************************************************/
-interrupt void TINT0_ISR(void){                 // PIE1.7 @ 0x000D4C  TINT0 (CPU TIMER 0)
+/**
+ * @brief ISR para la interrupciÃ³n del temporizador 0 de la CPU (SysTick).
+ * 
+ * Configura el temporizador para interrumpirse cada 1 ms. Dentro de esta funciÃ³n
+ * se monitorean distintos perifÃ©ricos y se actualizan variables.
+ */
+void TINT0_ISR(void){                 // PIE1.7 @ 0x000D4C  TINT0 (CPU TIMER 0)
     PieCtrlRegs.PIEACK.all = PIEACK_GROUP1;     // Must acknowledge the PIE group
     CpuTimer0Regs.TCR.bit.TIF = 1;              // Clear flag
 
@@ -154,16 +171,17 @@ interrupt void TINT0_ISR(void){                 // PIE1.7 @ 0x000D4C  TINT0 (CPU
     ledIndicator_task1ms();
 }
 
-/**********************************************************************
-* Function: EPWM6_INT_ISR()
-*
-* Description: ISR of EPWM6 interrupt
-* Se aplican en esta funcion los algoritmos de control
-**********************************************************************/
-interrupt void EPWM6_INT_ISR(void){             // PIE3.6 @ 0x000D6A  EPWM6_INT (EPWM6)
+/**
+ * @brief ISR para la interrupciÃ³n del EPWM6.
+ * 
+ * Esta ISR maneja los algoritmos de control para el inversor qZSI. Procesa
+ * los datos del ADC, aplica los lazos de control y actualiza las salidas PWM.
+ */
+void EPWM6_INT_ISR(void){             // PIE3.6 @ 0x000D6A  EPWM6_INT (EPWM6)
     PieCtrlRegs.PIEACK.all = PIEACK_GROUP3;     // Must acknowledge the PIE group
     EPwm6Regs.ETCLR.bit.INT = 1;                // Clear flag
 
+    // Crea las variables de manera estatica (se mantienen entre cada llamada)
     static activeVars_t activeVars = {0, 0, 0, 0, 0};
     static stVars_t stVars = {0, 0, 0, 0};
     static _iq d0 = 0, D = 0;
@@ -171,9 +189,18 @@ interrupt void EPWM6_INT_ISR(void){             // PIE3.6 @ 0x000D6A  EPWM6_INT 
     // Se copian a AdcBuff2 las variables muestreadas por el ADC almacenadas por DMA en AdcBuff
     memcpy(&AdcBuff2, &AdcBuff, sizeof(AdcBuff));
 
+    // Calculo de las variables --> Para vector activo y shoot-through
     qzsi_calculateVariables(&activeVars, &stVars, AdcBuff2);
 
-    // TODO: Se deben colocar filtros digitales para las entradas de protección por software, para evitar disparos espureos
+    // Cargamos datos en el Data Logger
+    dLogValues.ch_val1 = activeVars.VDC;
+    dLogValues.ch_val2 = activeVars.Vac;
+    dLogValues.ch_val3 = stVars.IL;
+    dLogValues.ch_val4 = stVars.IL1;
+
+    dataLoggerRun(&dLogValues);
+
+    // TODO: Se deben colocar filtros digitales para las entradas de protecciï¿½n por software, para evitar disparos espureos
     #if SOFTWARE_PROTECTIONS == 1
     if((!qzsi_hardwareReady() /*|| qzsi_softProtection(stVars.IL1, stVars.Iin, activeVars.VC1, activeVars.Vac, activeVars.Iac)*/) && !mefPrincipal_getFalla()){
         mefPrincipal_setFalla();
@@ -210,12 +237,13 @@ interrupt void EPWM6_INT_ISR(void){             // PIE3.6 @ 0x000D6A  EPWM6_INT 
     qzsi_updateSineReference();
 }
 
-/**********************************************************************
-* Function: EPWM1_TZINT_ISR()
-*
-* Description: ISR of EPWM1 TRIP ZONE interrupt
-**********************************************************************/
-interrupt void EPWM6_TZINT_ISR(void){           // PIE2.6 @ 0x000D5A  EPWM6_TZINT (EPWM6)
+/**
+ * @brief ISR para la interrupciÃ³n de zona de fallo del EPWM6.
+ * 
+ * Esta ISR se activa cuando se detecta una condiciÃ³n de fallo en el mÃ³dulo EPWM6.
+ * Establece la bandera de fallo y desactiva las salidas del inversor.
+ */
+void EPWM6_TZINT_ISR(void){                     // PIE2.6 @ 0x000D5A  EPWM6_TZINT (EPWM6)
     PieCtrlRegs.PIEACK.all = PIEACK_GROUP2;     // Must acknowledge the PIE group
     mefPrincipal_setFalla();
 }

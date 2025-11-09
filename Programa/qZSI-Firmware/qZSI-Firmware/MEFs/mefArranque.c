@@ -32,6 +32,14 @@
  *
  */
 
+/**
+ * @file mefArranque.c
+ * @brief Implementación de la máquina de estados para el arranque del sistema.
+ * @details Este archivo contiene las funciones necesarias para inicializar y
+ *          gestionar el arranque del sistema, incluyendo la secuencia de
+ *          estados y las transiciones correspondientes.
+ */
+
 /**********************************************************************
                               INCLUDES
 **********************************************************************/
@@ -68,6 +76,10 @@ static char arranqueVBUS, arranqueVO;
 /**********************************************************************
                   EXTERNAL FUNCTIONS DEFINITION
 **********************************************************************/
+/**********************************************************************
+ * @brief Inicializa la máquina de estados de arranque.
+ * @details Configura el estado inicial, temporizadores y señales de control.
+ **********************************************************************/
 void mefArranque_init(){
     estadoMefArranque = INICIO_ARRANQUE;
     timer = START_DELAY_TIME_MS;
@@ -79,6 +91,14 @@ void mefArranque_init(){
     GpioDataRegs.GPACLEAR.bit.GPIO_SW_IN = 1;   // SW_IN = 0
 }
 
+/**********************************************************************
+ * @brief Ejecuta la lógica de la máquina de estados de arranque.
+ * @details Gestiona las transiciones entre los estados de arranque según
+ *          las condiciones definidas. Se tienen los distintos estados
+ *          posibles para la mefArranque (INICIO_ARRANQUE, SW_IN_RESISTIVO,
+ *          AUMENTANDO_VBUS, CONTROLADOR_VBUS_ENGANCHADO, AUMENTANDO_VO,
+ *          CONTROLADOR_VO_ENGANCHADO).
+ **********************************************************************/
 void mefArranque(){
 
     switch (estadoMefArranque){
@@ -95,7 +115,7 @@ void mefArranque(){
     case SW_IN_RESISTIVO:
         if(!timer){
             GpioDataRegs.GPASET.bit.GPIO_VSEL = 1;         // VSEL = 1
-            qzsi_habilitarSalida();                        // Habilita la salida de tensi�n con D fijo inicialmente
+            qzsi_habilitarSalida();                        // Habilita la salida de tensi�n con D fijo inicialmente
             qzsi_initVBUS(DC_BUS_VOLTAGE_REFERENCE);
             ledIndicator_setCode(2);
             estadoMefArranque = AUMENTANDO_VBUS;
@@ -113,7 +133,7 @@ void mefArranque(){
 
     case CONTROLADOR_VBUS_ENGANCHADO:
         if(!timer){
-            qzsi_clearVoInicial();                         // Vo deja de tener un Dmax fijo y se ajusta seg�n desiredVo y VBUS
+            qzsi_clearVoInicial();                         // Vo deja de tener un Dmax fijo y se ajusta seg�n desiredVo y VBUS
             qzsi_setVo(MAX_OUTPUT_VOLTAGE_REFERENCE);
             ledIndicator_setCode(4);
             estadoMefArranque = AUMENTANDO_VO;
@@ -146,15 +166,26 @@ void mefArranque(){
     }
 }
 
-
+/**********************************************************************
+ * @brief Obtiene el estado de arranque de VBUS.
+ * @return Estado de arranque de VBUS (1: en progreso, 0: completado).
+ **********************************************************************/
 char mefArranque_getArranqueVBUS(){
     return arranqueVBUS;
 }
 
+/**********************************************************************
+ * @brief Obtiene el estado de arranque de VO.
+ * @return Estado de arranque de VO (1: en progreso, 0: completado).
+ **********************************************************************/
 char mefArranque_getArranqueVO(){
     return arranqueVO;
 }
 
+/**********************************************************************
+ * @brief Tarea periódica de 1 ms para la máquina de estados de arranque.
+ * @details Decrementa el temporizador utilizado en las transiciones de estado.
+ **********************************************************************/
 void mefArranque_task1ms(){
     if (timer) timer--;
 }
